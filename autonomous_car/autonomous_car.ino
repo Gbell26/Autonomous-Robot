@@ -2,9 +2,13 @@
 #include <Servo.h>
 
 
+
 #define TRIGGER_PIN 10
 #define ECHO_PIN 12
 #define MAX_DISTANCE 400
+
+void train();
+float getResult(float, float);
 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
@@ -52,6 +56,8 @@ void setup(){
 
 
     randomSeed(analogRead(53));
+
+    train();
     
 
 }
@@ -63,21 +69,20 @@ void setup(){
 void loop(){
 
 
-    int v1[3];
-   // vector<vector<float>> forwardVec;
-   // time it takes to do a circle / 365
-    int dir = 0;
+    int v1[2];
+
+    float dir = 0;
     int obsDistance = 0.00;
     unsigned int distance = 0;
 
     delay(500);
-
+    
     distance = ping();
     Serial.println(distance);
     
-    if(distance >= 40){
+    /*if(distance >= 40){
       forward();
-    }
+    }*/
     while(distance >= 40){
       distance = ping();
     }//drive forward as long as there is no obstacle
@@ -102,7 +107,19 @@ void loop(){
     lookStraight();
     delay(1500);
 
-    if (v1[0] > v1[1]){
+    dir = getResult(v1[0], v1[1]);
+    Serial.println(dir);
+    
+    if(getResult > 0.5){
+      leftTurn();
+      delay(460);
+    }
+    else{
+      rightTurn();
+      delay(460);
+    }
+
+    /*if (v1[0] > v1[1]){
       leftTurn();
       delay(460);
     }
@@ -112,7 +129,7 @@ void loop(){
     }
 
      stop();
-     delay(500);
+     delay(500);*/
 }
 
 unsigned int ping(){
@@ -130,7 +147,7 @@ unsigned int ping(){
 // Drive forward function
 void forward(){
 
-   analogWrite(speedControlPin, 100);
+   analogWrite(speedControlPin, 150);
    digitalWrite(frontMotor1pin1, HIGH);
    digitalWrite(frontMotor1pin2, LOW);
 
@@ -165,7 +182,7 @@ void reverse(){
 // Turn left function?
 void leftTurn(){
 
-    analogWrite(speedControlPin, 140);
+    analogWrite(speedControlPin, 150);
     //pins 2&3, back left
     digitalWrite(frontMotor1pin1, LOW);
     digitalWrite(frontMotor1pin2, HIGH);
@@ -184,7 +201,7 @@ void leftTurn(){
 // Turn right function?
 void rightTurn(){
 
-    analogWrite(speedControlPin, 140);
+    analogWrite(speedControlPin, 150);
     //pins 2&3, back left
     digitalWrite(frontMotor1pin1, HIGH);
     digitalWrite(frontMotor1pin2, LOW);
