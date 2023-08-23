@@ -118,6 +118,22 @@ const byte Target[trainX][outputNeurons] = {
 };
 
 
+
+
+float trainedHiddenWeights[inputNeurons + 1][hiddenNeurons] = {
+    { -54.01, 37.70, -15.60},
+    {54.69, -37.93, 15.67},
+    {-0.06, 0.04, -0.47}
+  };
+
+float trainedOutputWeights[hiddenNeurons + 1][outputNeurons] = {
+    {28.69},
+    {-20.47},
+    {8.63},
+    {-6.08}
+  };
+
+
 void train(){
 for (int x = 0; x < trainX; x++){
     inputNormalize[x][0] = Input[x][0]/1000;
@@ -230,78 +246,49 @@ for (int epoch = 0; epoch < 1000000; epoch++){
     }
     //end backprop
   }
-
-
-  // print error && epoch #
-  if(epoch % 100 == 0){
-    Serial.print("epoch: ");
-    Serial.print(epoch);
-    Serial.print(" Error: ");
-    Serial.print(error);
-    Serial.println();
-    }
   if (error < success) {break;}
 }
 
+//print hidden and output wieghts to be used be getResults() to pretrain model
+  Serial.println("Hidden Weights:");
+  for(int i = 0; i<=inputNeurons; i++){
+    for(int j = 0; j < hiddenNeurons; j++){
+      Serial.print(hiddenWeights[i][j]);
+      Serial.print(" ");
+    }
+    Serial.println();
+  }
 
-  //print results after successful training
-  for( int p = 0 ; p < trainX ; p++ ) { 
-    Serial.println(); 
-    Serial.print ("  Training Pattern: ");
-    Serial.println (p);      
-    Serial.print ("  Input ");
-    for(int i = 0 ; i < inputNeurons ; i++ ) {
-      Serial.print (Input[p][i], DEC);
-      Serial.print (" ");
+  Serial.println("Output Weights:");
+  for(int i = 0; i<=hiddenNeurons; i++){
+    for(int j = 0; j < outputNeurons; j++){
+      Serial.print(outputWeights[i][j]);
+      Serial.print(" ");
     }
-    Serial.print ("  Target ");
-    for(int i = 0 ; i < outputNeurons; i++ ) {
-      Serial.print (Target[p][i], DEC);
-      Serial.print (" ");
-    }
-
-    for( int i = 0 ; i < hiddenNeurons; i++ ) {    
-      sum = hiddenWeights[inputNeurons][i] ;
-      for(int j = 0 ; j < inputNeurons; j++ ) {
-        sum += inputNormalize[p][j] * hiddenWeights[j][i] ;
-      }
-      hiddenLayerOutputs[i] = 1.0/(1.0 + exp(-sum)) ;
-    }
-
-    for(int i = 0 ; i < outputNeurons ; i++ ) {    
-      sum = outputWeights[hiddenNeurons][i] ;
-      for( int j = 0 ; j < hiddenNeurons; j++ ) {
-        sum += hiddenLayerOutputs[j] * outputWeights[j][i] ;
-      }
-      outputLayerOutputs[i] = 1.0/(1.0 + exp(-sum)) ; 
-    }
-    Serial.print ("  Output ");
-    for( int i = 0 ; i < outputNeurons ; i++ ) {       
-      Serial.print (outputLayerOutputs[i], 5);
-      Serial.print (" ");
-    }
+    Serial.println();
   }
 }
 
 
 float getResult(float val1, float val2){
   float input[1][2];
+
   input[0][0] = val1/1000;
   input[0][1] = val2/1000;
 
   //feedforward
   for( int i = 0 ; i < hiddenNeurons; i++ ) {    
-      sum = hiddenWeights[inputNeurons][i] ;
+      sum = trainedHiddenWeights[inputNeurons][i] ;
       for(int j = 0 ; j < inputNeurons; j++ ) {
-        sum += input[0][j] * hiddenWeights[j][i];
+        sum += input[0][j] * trainedHiddenWeights[j][i];
       }
       hiddenLayerOutputs[i] = 1.0/(1.0 + exp(-sum)) ;
     }
 
     for(int i = 0 ; i < outputNeurons ; i++ ) {    
-      sum = outputWeights[hiddenNeurons][i] ;
+      sum = trainedOutputWeights[hiddenNeurons][i] ;
       for( int j = 0 ; j < hiddenNeurons; j++ ) {
-        sum += hiddenLayerOutputs[j] * outputWeights[j][i] ;
+        sum += hiddenLayerOutputs[j] * trainedOutputWeights[j][i] ;
       }
       outputLayerOutputs[i] = 1.0/(1.0 + exp(-sum)) ; 
     }

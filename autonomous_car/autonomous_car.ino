@@ -57,7 +57,7 @@ void setup(){
 
     randomSeed(analogRead(53));
 
-    train();
+    //train();
     
 
 }
@@ -80,9 +80,9 @@ void loop(){
     distance = ping();
     Serial.println(distance);
     
-    /*if(distance >= 40){
+    if(distance >= 40){
       forward();
-    }*/
+    }
     while(distance >= 40){
       distance = ping();
     }//drive forward as long as there is no obstacle
@@ -96,6 +96,7 @@ void loop(){
       obsDistance = ping();
       v1[0] = obsDistance; // add the distance to dist vector
     }
+    Serial.println(obsDistance);
     lookRight();
     delay(1500);    
     obsDistance = 0;
@@ -103,6 +104,7 @@ void loop(){
       obsDistance = ping();
       v1[1] = obsDistance;
     }
+    Serial.println(obsDistance);
 
     lookStraight();
     delay(1500);
@@ -110,7 +112,7 @@ void loop(){
     dir = getResult(v1[0], v1[1]);
     Serial.println(dir);
     
-    if(getResult > 0.5){
+    if(dir < 0.5){
       leftTurn();
       delay(460);
     }
